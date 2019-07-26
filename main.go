@@ -6,11 +6,8 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
-
-	"./screen"
 )
 
 func loadMaze(filename string) ([]string, error) {
@@ -51,25 +48,18 @@ func globalizeLevels(levels []string) error {
 }
 
 func printMaze(maze []string) {
-	screen.ClearScreen()
+	ClearScreen()
 	for _, row := range maze {
 		fmt.Println(row)
 	}
 }
 
 func init() {
-	cbTerm := exec.Command("/bin/stty", "cbreak", "-echo")
-	cbTerm.Stdin = os.Stdin
-
-	err := cbTerm.Run()
-
-	if err != nil {
-		log.Fatalln("Unable to activate cbreak mode terminal: %v\n", err)
-	}
+	SetTerm(false)
 }
 
 func main() {
-	defer screen.Cleanup()
+	defer SetTerm(true)
 	// initialize game
 	levels := []string{filepath.Join("step01", "maze01.txt")}
 	err := globalizeLevels(levels)
@@ -87,7 +77,7 @@ func main() {
 		// update screen
 		printMaze(maze)
 		// process input
-		input, err := screen.ReadInput()
+		input, err := ReadInput()
 		if err != nil {
 			log.Fatalln("Unable to process keyboard input:\n%v", err)
 		}

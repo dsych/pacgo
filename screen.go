@@ -1,4 +1,4 @@
-package screen
+package main
 
 import (
 	"fmt"
@@ -7,11 +7,16 @@ import (
 	"os/exec"
 )
 
-func Cleanup() {
-	cookedTerm := exec.Command("stty", "-cbreak", "echo")
-	cookedTerm.Stdin = os.Stdin
+func SetTerm(isCooked bool) {
+	var term *exec.Cmd
+	if isCooked {
+		term = exec.Command("stty", "-cbreak", "echo")
+	} else {
+		term = exec.Command("stty", "cbreak", "-echo")
+	}
+	term.Stdin = os.Stdin
 
-	err := cookedTerm.Run()
+	err := term.Run()
 	if err != nil {
 		log.Fatalln("Unable to enable cooked mode: %v", err)
 	}
