@@ -22,18 +22,32 @@ func SetTerm(isCooked bool) {
 	}
 }
 
-func ReadInput() (string, error) {
+func ReadInput() (bool, []int, error) {
 	buffer := make([]byte, 100)
 
 	cnt, err := os.Stdin.Read(buffer)
 	if err != nil {
-		return "", err
+		return false, nil, err
 	}
+	// 0 - y
+	// 1 - x
+	coords := []int{0, 0}
 
 	if cnt == 1 && buffer[0] == 0x1b {
-		return "ESC", nil
+		return true, nil, nil
+	} else if cnt >= 3 && buffer[0] == 0x1b && buffer[1] == '[' {
+		switch buffer[2] {
+		case 'A':
+			coords[0] = -1
+		case 'B':
+			coords[0] = 1
+		case 'C':
+			coords[1] = 1
+		case 'D':
+			coords[1] = -1
+		}
 	}
-	return "", nil
+	return false, coords, nil
 }
 
 func ClearScreen() {
